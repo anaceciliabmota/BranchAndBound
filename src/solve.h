@@ -18,25 +18,26 @@
 
 // Declaração da função que você quer chamar
 
-struct Solution
+
+
+struct SimplexRelaxation
 {
     double z;
-    MatrixXd variaveis_basicas;
-    MatrixXd variaveis_nao_basicas;
-} typedef Solution;
+    VectorXd variaveis;
+} typedef SimplexRelaxation;
 
-struct Problem{
-    Solution s;
-    Data data;
+struct Node{
+    SimplexRelaxation relaxation;
+    VectorXd ub;
+    VectorXd lb;
     bool feasible;
-    Problem(Data d) : data(d) {}
 
-    void setSolution(Solution sol) {
-        s = sol;
+    void setSolution(SimplexRelaxation sol) {
+        relaxation = sol;
     }
 
-} typedef Problem;
+} typedef Node;
 
-Solution solve(Data& data);
+SimplexRelaxation solve(Data& data);
 
 #endif

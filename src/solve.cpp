@@ -7,6 +7,13 @@
   #define EPSILON 1e-5
   #define EPSILON2 1e-8
   #define EPSILON3 1e-6 
+  
+  struct Solution
+  {
+    double z;
+    MatrixXd variaveis_basicas;
+    MatrixXd variaveis_nao_basicas;
+  } typedef Solution;
 
  
   struct PrimeiraFase
@@ -43,8 +50,10 @@
   void printSolution(int n, Solution& s);
 
   void simplex(Solution * s, Data *data, Basis * b, MatrixXd &variaveis_basicas, MatrixXd &variaveis_nao_basicas, PrimeiraFase * aux, int * iteration);
+  
+  VectorXd simplifySolution(MatrixXd& vb, MatrixXd& vn);
 
-  Solution solve(Data& data)
+  SimplexRelaxation solve(Data& data)
   {
       
     clock_t start, end;
@@ -99,7 +108,12 @@
     //cout << "TIME USED: " << fixed << time_taken;
     //cout << " secs" << endl;
 
-    return s;
+    VectorXd variaveis = simplifySolution(s.variaveis_basicas, s.variaveis_nao_basicas);
+    
+    SimplexRelaxation relaxation;
+    relaxation.z = s.z;
+    relaxation.variaveis = variaveis;
+    return relaxation;
     
   }
 
@@ -455,7 +469,6 @@
     //MatrixXd A = A_sparse;
     variaveis_basicas.col(1) =  A.rightCols(m) * *data->getRHS() - A.leftCols(n-m) * variaveis_nao_basicas.col(1);
 
-    cout << variaveis_basicas.col(1).transpose() << endl;
 
 
     for(int i = 0; i < variaveis_basicas.rows(); i++){
@@ -505,4 +518,25 @@
           }
         }
         //cout << "z: " << s.z << endl;
+  }
+
+  VectorXd simplifySolution(MatrixXd& vb, MatrixXd& vn){
+    
+    int n = vn.rows();
+    VectorXd variaveis(n);
+    for(int i = 0; i < vb.rows(); i++){
+      int index = static_cast<int>(vb(i, 0));
+      if(index < n){
+        variaveis(index) = vb(i,1);
+      }
+    }
+
+    for(int i = 0; i < vn.rows(); i++){
+      int index = static_cast<int>(vn(i,0));
+      if(index < n){
+        variaveis(index) = vn(i,1);
+      }
+    }
+
+    return variaveis;
   }

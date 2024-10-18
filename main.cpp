@@ -24,132 +24,117 @@ int branching_strategy(char s[]){
 	return branchingS;
 }
 
-Problem select_node(int branchingS, list<Problem> &tree, list<Problem>::iterator &i)
+Node select_node(int branchingS, list<Node> &tree, list<Node>::iterator &i)
 {
 	if (branchingS == 1)
 	{
-		// BFS
+		//BFS
 		i = tree.begin();
 		return tree.front();
 	}
-	// DFS
+	//DFS
 	i = --tree.end();
 	return tree.back();
 }
 
-void feasibility(Problem& p){
-  p.feasible = true;
-  for(int i = 0; i < p.s.variaveis_basicas.rows(); i++){
-    double x = p.s.variaveis_basicas(i, 1);
+
+void feasibility(Node& node){
+  node.feasible = true;
+  cout << "z: " << node.relaxation.z << endl;
+  //cout << node.relaxation.variaveis.transpose() << endl;
+  for(int i = 0; i < node.relaxation.variaveis.size(); i++){
+    double x = node.relaxation.variaveis(i);
     int x_inteiro = round(x);
     if(abs(x - x_inteiro) > EPSILON){
-      p.feasible = false;
+      node.feasible = false;
     }
   }
 }
 
+Data modifyData(Data& data, Node& node){
+  
+  Data new_data = data;
+  new_data.setVectorU(node.ub);
+  new_data.setVectorL(node.lb);
+  return new_data;
+}
 
-Problem BnB(Data& data, int branchingS){
 
+Node branchAndBound(Data& data, int branchingS){
 
-  list<Problem>::iterator it;
-  Problem root(data);
-  Solution s = solve(root.data);
-  root.setSolution(s);
-  cout << s.z << endl;
-  cout << root.s.z << endl;
-  list<Problem> tree;
+  list<Node>::iterator it;
+  Node root;
+  root.ub = *data.getVectorU();
+  root.lb = *data.getVectorL();
+
+  root.setSolution(solve(data));
+  list<Node> tree;
 
   tree.push_back(root);
 
-  double upper_bound = -numeric_limits<double>::infinity();
-  Problem best(data); //is going to be change by the end of the algorithm
-
+  double dual_limit = -numeric_limits<double>::infinity();
+  
+  Node best; //is going to be change by the end of the algorithm
+  best.relaxation.z = numeric_limits<double>::infinity();
+  
   int cont = 0;
+
   while(!tree.empty()){
     cont++;
-    Problem p = select_node(branchingS, tree, it);
-    p.setSolution(solve(p.data));
-    cout << p.s.z << endl;
+    Node node = select_node(branchingS, tree, it);
     
-    feasibility(p);
-    if(p.feasible){
-      cout << "VIAVEL: " << p.s.z << endl;
-    }
-    if (p.s.z < upper_bound)
+    Data modified_data = modifyData(data, node);
+
+    cout << "'//////////////////////////'" << endl;
+    cout << modified_data.getVectorU()->transpose() << endl;
+    cout << modified_data.getVectorL()->transpose() << endl;
+
+    node.setSolution(solve(modified_data));
+    
+    feasibility(node);
+   
+    if (node.relaxation.z + EPSILON < dual_limit)
   	{
       tree.erase(it);
    		continue;
 
-    }else if(p.feasible){
+    }else if(node.feasible){
 
-      if(p.s.z > upper_bound){
-        upper_bound = p.s.z;
-        best = p;
-      }
+      if(node.relaxation.z + EPSILON < best.relaxation.z){
+        best = node;
+    }
     }else{
-      
-      VectorXd ub = *(p.data.getVectorU());
-      cout << ub.transpose() << endl;
-      VectorXd lb = *(p.data.getVectorL());
-      cout << lb.transpose() << endl;
+
+      dual_limit = node.relaxation.z;
+
       int index;
-      double x;
-      double max_value = numeric_limits<double>::infinity();
+      double diff = numeric_limits<double>::infinity();
 
-      int tamanho = p.s.variaveis_basicas.rows();
-
-      for(int i = 0; i < p.s.variaveis_basicas.rows(); i++){
-        
-        double aux = p.s.variaveis_basicas(i, 1);
-      
-        if(abs(aux - 0.5) < max_value && p.s.variaveis_basicas(i, 0) < tamanho){
-          x = aux;
-          index = static_cast<int>(p.s.variaveis_basicas(i, 0));
-          max_value = abs(x-0.5);
+      for(int i = 0; i < node.relaxation.variaveis.rows(); i++){
+        double val = node.relaxation.variaveis(i);
+        if(abs(val - 0.5) < diff){
+          index = i;
+          diff = abs(val - 0.5);
         }
       }
 
-  
-      // for(int i = 0; i < p.s.variaveis_nao_basicas.rows(); i++){
-        
-      //   double aux = p.s.variaveis_nao_basicas(i, 1);
-        
-      //   if(abs(aux - 0.5) < max_value){
-      //     x = aux;
-      //     index = static_cast<int>(p.s.variaveis_nao_basicas(i, 0));
-      //     max_value = abs(x - 0.5);
-      //   }
-      // }
-      cout << endl;
+      Node child1;
+      Node child2;
+      
+      child1.ub = node.ub;
+      child1.lb = node.lb;
+      child1.ub(index) = 1;
+      child1.lb(index) = 1;
 
-      cout << x << " " << index << " " << endl;
+      child2.ub = node.ub;
+      child2.lb = node.lb;
+      child2.ub(index) = 0;
+      child2.lb(index) = 0;
 
-      Problem novo1(p.data);
-      Problem novo2(p.data);
+      tree.push_back(child1);
+      tree.push_back(child2);
 
-      ub(index) = 1;
-      lb(index) = 1;
-
-    //   cout << ub.transpose() << endl;
-    //   cout << lb.transpose() << endl << endl;
-
-      novo1.data.setVectorL(lb);
-      novo1.data.setVectorU(ub);
-
-      ub(index) = 0;
-      lb(index) = 0;
-
-      novo2.data.setVectorL(lb);
-      novo2.data.setVectorU(ub);
-
-      tree.push_back(novo1);
-      tree.push_back(novo2);
     }
-    //if(cont > 5){
-      // break;
-    //}
-    cout << p.s.z << endl;
     tree.erase(it);
   }
   return best;
@@ -188,16 +173,11 @@ int main (int argc, char ** argv){
     cout << "lb: " << data.getVectorL()->transpose() << endl;
     cout << "ub: " << data.getVectorU()->transpose() << endl;
 
-    Solution s = solve(data);
+    SimplexRelaxation relaxacao = solve(data);
 
-    cout << s.z << endl;
+    Node best_solution = branchAndBound(data, branchingS);
 
-    double x = 23.456;
-    cout << x - static_cast<int>(x) << endl;
-
-    Problem best_solution = BnB(data, branchingS);
-
-    cout << best_solution.s.z << endl;
+    cout << best_solution.relaxation.z << endl;
 
     return 0;
 }
