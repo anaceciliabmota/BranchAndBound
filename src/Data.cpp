@@ -40,7 +40,6 @@ Data::Data(std::string fileName) {
 
       l.head(n+m).setZero();
 
-
       u = VectorXd(n+m);
 
       for (int i = 0; i < n; i++){
@@ -49,14 +48,6 @@ Data::Data(std::string fileName) {
       for (int i = n; i < m+n; i++){
          u(i) = infinity;
       }
-
-      // rhs = LeVetor(readFile, m);
-
-      // indice_vb = LeVetor(readFile, m);
-
-      // indice_vn = LeVetor(readFile, n - m);
-
-      // variaveis = LeVetor(readFile, n);
 
       readFile.close();
     } else {
@@ -84,7 +75,6 @@ MatrixXd Data::LeMatrix(ifstream &readFile, int m, int n, VectorXd& rhs){
       for (int row = 0; row < m; ++row) {
          getline(readFile, line);
          std::istringstream thisLine(line);
-         cout << thisLine.str() << endl;
          col = 0;
          while (thisLine >> number) {
             if (col == n){
@@ -114,7 +104,6 @@ VectorXd Data::LeVetor(ifstream &readFile, int dim, int m){
    string line;
    getline(readFile, line);
    std::istringstream thisLine(line);
-   cout << thisLine.str() << endl;
    while(thisLine >> number){
       if(number == "inf"){
          vetor(col) = infinity;
@@ -126,7 +115,6 @@ VectorXd Data::LeVetor(ifstream &readFile, int dim, int m){
       else{
          vetor(col) = safe_stod(number);
       }
-      //cout << number << endl;
       col++;
    }
    for (int i = dim; i < dim + m; ++i) {

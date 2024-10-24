@@ -40,7 +40,6 @@ Node select_node(int branchingS, list<Node> &tree, list<Node>::iterator &i)
 
 void feasibility(Node& node){
   node.feasible = true;
-  cout << "z: " << node.relaxation.z << endl;
   //cout << node.relaxation.variaveis.transpose() << endl;
   for(int i = 0; i < node.relaxation.variaveis.size(); i++){
     double x = node.relaxation.variaveis(i);
@@ -71,10 +70,8 @@ Node branchAndBound(Data& data, int branchingS){
   list<Node> tree;
 
   tree.push_back(root);
-
-  double dual_limit = -numeric_limits<double>::infinity();
   
-  Node best; //is going to be change by the end of the algorithm
+  Node best;
   best.relaxation.z = numeric_limits<double>::infinity();
   
   int cont = 0;
@@ -85,27 +82,20 @@ Node branchAndBound(Data& data, int branchingS){
     
     Data modified_data = modifyData(data, node);
 
-    cout << "'//////////////////////////'" << endl;
-    cout << modified_data.getVectorU()->transpose() << endl;
-    cout << modified_data.getVectorL()->transpose() << endl;
-
     node.setSolution(solve(modified_data));
     
     feasibility(node);
    
-    if (node.relaxation.z + EPSILON < dual_limit)
-  	{
-      tree.erase(it);
-   		continue;
+    if(node.feasible && node.relaxation.feasible){
 
-    }else if(node.feasible){
-
-      if(node.relaxation.z + EPSILON < best.relaxation.z){
+      if(node.relaxation.z + EPSILON < best.relaxation.z)
         best = node;
-    }
-    }else{
 
-      dual_limit = node.relaxation.z;
+    }else if(!node.relaxation.feasible || node.relaxation.z > best.relaxation.z){
+      tree.erase(it);
+      continue;
+
+    }else{
 
       int index;
       double diff = numeric_limits<double>::infinity();
@@ -163,8 +153,6 @@ int main (int argc, char ** argv){
 
     int branchingS = branching_strategy(argv[2]);
 
-    cout << branchingS << endl;
-
     cout <<"fo: " << data.getFO()->transpose() << endl;
 
     MatrixXd A = MatrixXd(*data.getMatrixA());
@@ -172,8 +160,6 @@ int main (int argc, char ** argv){
     cout << "rhs: " << data.getRHS()->transpose() << endl;
     cout << "lb: " << data.getVectorL()->transpose() << endl;
     cout << "ub: " << data.getVectorU()->transpose() << endl;
-
-    SimplexRelaxation relaxacao = solve(data);
 
     Node best_solution = branchAndBound(data, branchingS);
 

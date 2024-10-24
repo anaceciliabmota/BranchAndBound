@@ -113,6 +113,7 @@
     SimplexRelaxation relaxation;
     relaxation.z = s.z;
     relaxation.variaveis = variaveis;
+    relaxation.feasible = is_feasible;
     return relaxation;
     
   }
@@ -495,8 +496,9 @@
 
     Solution s1;
     simplex(&s1, data, &b,  variaveis_basicas, variaveis_nao_basicas, &aux, iteration); 
-    
-    
+    if(s1.z > EPSILON){
+      *is_feasible = false;
+    }
     return b;
   }
 

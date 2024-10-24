@@ -24,6 +24,7 @@ struct SimplexRelaxation
 {
     double z;
     VectorXd variaveis;
+    bool feasible;
 } typedef SimplexRelaxation;
 
 struct Node{
