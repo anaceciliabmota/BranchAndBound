@@ -2,10 +2,10 @@
 Implementação do Branch and Bound para resolver problemas de Programação Linear Inteira, especificamente para variáveis binárias
 
 ## Sobre
-Esse projeto foi desenvolvido para a disciplina de Pesquisa Operacional na Universidade Federal da Paraíba e tem como objetivo resolver diferentes instâncias de Programação Linear Inteira através do Branch and Bound.
+Esse projeto foi desenvolvido para a disciplina de Pesquisa Operacional na Universidade Federal da Paraíba e tem como objetivo resolver diferentes instâncias de Programação Linear Inteira através do algoritmo Branch and Bound.
 - **Input**: O programa recebe dois argumentos, o primeiro é o caminho para o arquivo `.txt` com a instância, e o segundo é a estratégia de ramificação da árvore do algoritmo, aceitando "BFS" para busca em largura e "DFS" para busca em profundidade.
     ```bash
-    ./ solve caminho/para/instancia.txt sigla_para_estratégia
+    ./solve caminho/para/instancia.txt sigla_para_estratégia
     ```
 - **Output**:
 
@@ -21,4 +21,4 @@ A pasta [`instancias`](instancias) contem as instâncias passadas pelo docente p
 
 ## Relaxação
 
-Para resolver as relaxações, foi usado utilizada uma iplementação autoral do Simplex Revisado, a qual pode ser vista com mais detalhes no repositório [SIMPLEX](https://github.com/anaceciliabmota/SIMPLEX) desse mesmo perfil.
+Para resolver as relaxações, foi utilizada uma iplementação autoral do Simplex Revisado, a qual pode ser vista com mais detalhes no repositório [SIMPLEX](https://github.com/anaceciliabmota/SIMPLEX) desse mesmo perfil.
