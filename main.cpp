@@ -1,32 +1,28 @@
-#include "src/solve.h"
-#include "src/Data.h"
+#include "Simplex/src/solve.h"
+#include "Simplex/src/Data.h"
 #include <list>
 #include <iostream>
 #include <string>
+
 #define EPSILON 1e-5
 
 int branching_strategy(char s[]){
+  //função que atribui um valor numérico para representar a estratégia de branching escolhida
 	int branchingS;
 	if (strcmp(s, "BFS") == 0)
-	{
 		branchingS = 1;
-	}
 	else if (strcmp(s, "DFS") == 0)
-	{
 		branchingS = 2;
-	}
-	else
-	{
-		cout << "Non valid Branching Strategy" << endl;
+	else{
+		cout << "Estrategia de ramificação não válida" << endl;
     exit(0);
-		return 0;
 	}
 	return branchingS;
 }
 
-Node select_node(int branchingS, list<Node> &tree, list<Node>::iterator &i)
-{
-	if (branchingS == 1)
+Node select_node(int branchingS, list<Node> &tree, list<Node>::iterator &i){
+	
+  if (branchingS == 1)
 	{
 		//BFS
 		i = tree.begin();
@@ -37,16 +33,15 @@ Node select_node(int branchingS, list<Node> &tree, list<Node>::iterator &i)
 	return tree.back();
 }
 
-
 void feasibility(Node& node){
+
   node.feasible = true;
-  //cout << node.relaxation.variaveis.transpose() << endl;
   for(int i = 0; i < node.relaxation.variaveis.size(); i++){
     double x = node.relaxation.variaveis(i);
     int x_inteiro = round(x);
-    if(abs(x - x_inteiro) > EPSILON){
+    if(abs(x - x_inteiro) > EPSILON)
+      //verifica se a diferença é significativa
       node.feasible = false;
-    }
   }
 }
 
@@ -66,64 +61,57 @@ Node branchAndBound(Data& data, int branchingS){
   root.ub = *data.getVectorU();
   root.lb = *data.getVectorL();
 
-  root.setSolution(solve(data));
   list<Node> tree;
-
   tree.push_back(root);
   
-  Node best;
+  Node best; //armazenará a melhor solução viável
   best.relaxation.z = numeric_limits<double>::infinity();
-  
-  int cont = 0;
 
   while(!tree.empty()){
-    cont++;
-    Node node = select_node(branchingS, tree, it);
     
-    Data modified_data = modifyData(data, node);
-
-    node.setSolution(solve(modified_data));
-    
-    feasibility(node);
+    Node node = select_node(branchingS, tree, it); // seleciona o nó
+    Data modified_data = modifyData(data, node); // adiciona as restrições 'extras'
+    node.setSolution(solve(modified_data)); // resolve
+    feasibility(node); // verifica se solução é viável (inteira)
    
     if(node.feasible && node.relaxation.feasible){
-
+      // corte pelo critério da integralidade
       if(node.relaxation.z + EPSILON < best.relaxation.z)
         best = node;
 
     }else if(!node.relaxation.feasible || node.relaxation.z > best.relaxation.z){
+      // corte por inviabilidade e por limite
       tree.erase(it);
       continue;
-
     }else{
 
       int index;
       double diff = numeric_limits<double>::infinity();
 
+      // encontra a variável mais próxima de 0.5
       for(int i = 0; i < node.relaxation.variaveis.rows(); i++){
         double val = node.relaxation.variaveis(i);
-        if(abs(val - 0.5) < diff){
+        if(abs(val - 0.5) + EPSILON < diff){
           index = i;
           diff = abs(val - 0.5);
         }
       }
 
+      // adiciona filho em que xj == 1
       Node child1;
-      Node child2;
-      
-      child1.ub = node.ub;
-      child1.lb = node.lb;
+      child1.ub = node.ub; 
+      child1.lb = node.lb; 
       child1.ub(index) = 1;
       child1.lb(index) = 1;
+      tree.push_back(child1);
 
+      // adiciona filho em que xj == 0
+      Node child2;
       child2.ub = node.ub;
       child2.lb = node.lb;
       child2.ub(index) = 0;
       child2.lb(index) = 0;
-
-      tree.push_back(child1);
       tree.push_back(child2);
-
     }
     tree.erase(it);
   }
@@ -134,7 +122,6 @@ Node branchAndBound(Data& data, int branchingS){
 
 int main (int argc, char ** argv){
 
-   
     if (argc < 2)
     {
       cout << "ERRO: necessário a passagem do caminho pra a instância como primeiro argumento e a estratégia de busca como segunda" << endl;

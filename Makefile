@@ -2,25 +2,26 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -I ./ -std=c++11 \
-           -I ./SuiteSparse/SuiteSparse-dev/UMFPACK/Include \
-           -I ./SuiteSparse/SuiteSparse-dev/AMD/Include \
-           -I ./SuiteSparse/SuiteSparse-dev/CHOLMOD/Include \
-           -I ./SuiteSparse/SuiteSparse-dev/SuiteSparse_config \
+CXXFLAGS = -I ./Simplex -std=c++11 \
+           -I ./Simplex/SuiteSparse/SuiteSparse-dev/UMFPACK/Include \
+           -I ./Simplex/SuiteSparse/SuiteSparse-dev/AMD/Include \
+           -I ./Simplex/SuiteSparse/SuiteSparse-dev/CHOLMOD/Include \
+           -I ./Simplex/SuiteSparse/SuiteSparse-dev/SuiteSparse_config \
+           -I ./Simplex/eigen \
            -O3
 
 # Linker flags (path to the local SuiteSparse libraries)
-LDFLAGS = -L./SuiteSparse/SuiteSparse-dev/lib \
+LDFLAGS = -L./Simplex/SuiteSparse/SuiteSparse-dev/lib \
           -lumfpack -lcholmod -lamd -lsuitesparseconfig
 
 # Source and object files
-SRC_DIR = src
-OBJ_DIR = obj
+SRC_DIR = Simplex/src
+OBJ_DIR = Simplex/obj
 
 # Add the main.cpp separately outside the src folder
 MAIN_FILE = main.cpp
 
-# Source files inside the src folder
+# Source files inside the simplex/src folder
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
 # Object files
