@@ -16,19 +16,21 @@ LDFLAGS = -L./Simplex/SuiteSparse/SuiteSparse-dev/lib \
 
 # Source and object files
 SRC_DIR = Simplex/src
-OBJ_DIR = Simplex/obj
+OBJ_DIR = obj
 
-# Add the main.cpp separately outside the src folder
+# Add the main.cpp and the other additional cpp files outside the src folder
 MAIN_FILE = main.cpp
+EXTRA_FILES = branchAndBound.cpp branchAndBound.h  # Substitua com os nomes dos novos arquivos
 
-# Source files inside the simplex/src folder
+# Source files inside the Simplex/src folder
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
 # Object files
 OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 
-# Object file for main.cpp
+# Object files for main.cpp and the additional files
 MAIN_OBJ = $(OBJ_DIR)/main.o
+EXTRA_OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(EXTRA_FILES))
 
 # Output executable
 TARGET = solve
@@ -42,20 +44,24 @@ debug: CXXFLAGS := $(filter-out -O3, $(CXXFLAGS)) -g
 debug: $(DEBUG_TARGET)
 
 # Link object files (optimized build)
-$(TARGET): $(OBJS) $(MAIN_OBJ)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(MAIN_OBJ) $(LDFLAGS)
+$(TARGET): $(OBJS) $(MAIN_OBJ) $(EXTRA_OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(MAIN_OBJ) $(EXTRA_OBJS) $(LDFLAGS)
 
 # Link object files (debug build)
-$(DEBUG_TARGET): $(OBJS) $(MAIN_OBJ)
-	$(CXX) $(CXXFLAGS) -o $(DEBUG_TARGET) $(OBJS) $(MAIN_OBJ) $(LDFLAGS)
+$(DEBUG_TARGET): $(OBJS) $(MAIN_OBJ) $(EXTRA_OBJS)
+	$(CXX) $(CXXFLAGS) -o $(DEBUG_TARGET) $(OBJS) $(MAIN_OBJ) $(EXTRA_OBJS) $(LDFLAGS)
 
-# Compile source files into object files
+# Compile source files inside Simplex/src into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Compile the main.cpp file into an object file
 $(MAIN_OBJ): $(MAIN_FILE) | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $(MAIN_FILE) -o $(MAIN_OBJ)
+
+# Compile additional files into object files
+$(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Create the object directory if it doesn't exist
 $(OBJ_DIR):
