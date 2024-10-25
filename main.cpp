@@ -1,5 +1,6 @@
 #include "branchAndBound.h"
 #include <ctime>
+#include <iomanip>
 
 int main (int argc, char ** argv){
   clock_t start, end;
@@ -36,7 +37,7 @@ int main (int argc, char ** argv){
   Node best_solution = branchAndBound(data, branchingS);
   end = clock();
 
-  cout << "obj = " << best_solution.relaxation.z << endl;
+  cout << "obj = " << setprecision(5) << best_solution.relaxation.z << endl;
   double time_taken = double(end - start) / CLOCKS_PER_SEC;
   cout << "TEMPO USADO: " << time_taken << " segundos" << endl;
   return 0;

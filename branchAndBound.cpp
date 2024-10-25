@@ -63,8 +63,8 @@ Node branchAndBound(Data& data, int branchingS){
     }
     tree.erase(it);
     iterations++;
-    if(iterations % 10 == 0){
-      cout << "iteração = " << iterations << " obj = " << setprecision(2) << best.relaxation.z << endl;
+    if(iterations % 100 == 0){
+      cout << "iteração = " << iterations << " obj = " << setprecision(5) << best.relaxation.z << endl;
     }
   }
   return best;

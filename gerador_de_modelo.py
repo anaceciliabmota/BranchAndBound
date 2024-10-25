@@ -3,7 +3,7 @@ from mip import *
 
 def generate_model(n, m, output_file):
     # Cria o modelo MIP
-    model = Model()
+    model = Model(sense=MAXIMIZE, solver_name=CBC)
 
     # Cria variáveis binárias
     vars = [model.add_var(var_type=BINARY) for i in range(n)]
@@ -23,7 +23,7 @@ def generate_model(n, m, output_file):
         constraints.append(coeffs + [rhs])
         model += xsum(coeffs[i] * vars[i] for i in range(n)) <= rhs
 
-    model.verbose = 0
+    
     model.optimize()
 
     # Exibe o valor ótimo (se o modelo foi resolvido com sucesso)
