@@ -1,5 +1,5 @@
 # Branch and Bound
-Implementação do Branch and Bound para resolver problemas de Programação Linear Inteira, especificamente para variáveis binárias
+Implementação do Branch and Bound desenvolvida em **C++** para resolver problemas de Programação Linear Inteira, especificamente para variáveis binárias
 
 ## Sobre
 Esse projeto foi desenvolvido para a disciplina de Pesquisa Operacional na Universidade Federal da Paraíba e tem como objetivo resolver diferentes instâncias de Programação Linear Inteira através do algoritmo Branch and Bound.
@@ -7,7 +7,7 @@ Esse projeto foi desenvolvido para a disciplina de Pesquisa Operacional na Unive
     ```bash
     ./solve caminho/para/instancia.txt sigla_para_estratégia
     ```
-- **Output**:
+- **Output**: O programa mostra, durante a execução, o atual valor da função objetivo, a cada 10 iterações. No fim, o programa retorna o valor da solução ótima, assim como o valor de cada variável.
 
 ## Instancias
 A pasta [`instancias`](instancias) contem as instâncias passadas pelo docente para validação do resolvedor e possuem o seguinte formato:

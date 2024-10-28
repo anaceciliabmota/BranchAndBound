@@ -25,21 +25,19 @@ int main (int argc, char ** argv){
 
   int branchingS = branching_strategy(argv[2]);
 
-  // cout <<"fo: " << data.getFO()->transpose() << endl;
-
-  // MatrixXd A = MatrixXd(*data.getMatrixA());
-  // cout << "matrizA: " << endl << A << endl;
-  // cout << "rhs: " << data.getRHS()->transpose() << endl;
-  // cout << "lb: " << data.getVectorL()->transpose() << endl;
-  // cout << "ub: " << data.getVectorU()->transpose() << endl;
-
   cout << "Resolvendo..." << endl;
   Node best_solution = branchAndBound(data, branchingS);
   end = clock();
 
+  cout << "Solução: " << endl;
+  
+  for (int i = 0; i < best_solution.relaxation.variables.size(); i++){
+    cout << "x_" << i+1 << " = " << setprecision(2) << best_solution.relaxation.variables(i) << endl;
+  }
+
   cout << "obj = " << setprecision(5) << best_solution.relaxation.z << endl;
   double time_taken = double(end - start) / CLOCKS_PER_SEC;
-  cout << "TEMPO USADO: " << time_taken << " segundos" << endl;
+  cout << "Tempo gasto: " << time_taken << " segundos" << endl;
   return 0;
 }
 

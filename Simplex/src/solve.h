@@ -16,28 +16,12 @@
 #include "../Eigen/Sparse"
 #include <iomanip>
 
-// Declaração da função que você quer chamar
-
-
-
 struct SimplexRelaxation
 {
     double z;
-    VectorXd variaveis;
+    VectorXd variables;
     bool feasible;
 } typedef SimplexRelaxation;
-
-struct Node{
-    SimplexRelaxation relaxation;
-    VectorXd ub;
-    VectorXd lb;
-    bool feasible;
-
-    void setSolution(SimplexRelaxation sol) {
-        relaxation = sol;
-    }
-
-} typedef Node;
 
 SimplexRelaxation solve(Data& data);
 

@@ -14,7 +14,6 @@
     MatrixXd variaveis_basicas;
     MatrixXd variaveis_nao_basicas;
   } typedef Solution;
-
  
   struct PrimeiraFase
   {
@@ -112,7 +111,7 @@
     
     SimplexRelaxation relaxation;
     relaxation.z = s.z;
-    relaxation.variaveis = variaveis;
+    relaxation.variables = variaveis;
     relaxation.feasible = is_feasible;
     return relaxation;
     

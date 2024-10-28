@@ -19,7 +19,7 @@ Data::Data(std::string fileName) {
     int m, n, col;
     double number;
     //std::string line;
-    std::ifstream readFile(fileName);
+    ifstream readFile(fileName);
 
     if (readFile.is_open()) {
       getDimensions(readFile, &m, &n);
@@ -35,23 +35,22 @@ Data::Data(std::string fileName) {
 
       A = A_dense.sparseView();
 
-      //le vetor l
-      l = VectorXd(n+m);
+      l = VectorXd(n+m); 
 
-      l.head(n+m).setZero();
+      l.head(n+m).setZero(); // fixa lowebounds em 0
 
       u = VectorXd(n+m);
 
       for (int i = 0; i < n; i++){
-         u(i) = 1;
+         u(i) = 1; //fixa upperbounds em 1
       }
       for (int i = n; i < m+n; i++){
-         u(i) = infinity;
+         u(i) = infinity; //os upperbound das variaveis de folga são de valor infinito
       }
 
       readFile.close();
     } else {
-        std::cerr << "Unable to open file " << fileName << std::endl;
+        cerr << "Não foi possível abrir o arquivo " << fileName << endl;
     }
 
 }
@@ -61,8 +60,6 @@ void Data::getDimensions(ifstream &readFile, int* m, int* n){
       getline(readFile, line);
       std::istringstream thisLine(line);
       thisLine >> *n >> *m;
-      // Redimensiona as matrizes e vetores
-
 }
 
 MatrixXd Data::LeMatrix(ifstream &readFile, int m, int n, VectorXd& rhs){
@@ -97,27 +94,18 @@ MatrixXd Data::LeMatrix(ifstream &readFile, int m, int n, VectorXd& rhs){
       return matrizA;
 }
 
-VectorXd Data::LeVetor(ifstream &readFile, int dim, int m){
-   VectorXd vetor(dim+m);
+VectorXd Data::LeVetor(ifstream &readFile, int n, int m){
+   VectorXd vetor(n+m);
    string number;
    int col = 0;
    string line;
    getline(readFile, line);
    std::istringstream thisLine(line);
    while(thisLine >> number){
-      if(number == "inf"){
-         vetor(col) = infinity;
-
-      }
-      else if(number == "-inf"){
-         vetor(col) = -infinity;
-      }
-      else{
-         vetor(col) = safe_stod(number);
-      }
+      vetor(col) = stod(number);
       col++;
    }
-   for (int i = dim; i < dim + m; ++i) {
+   for (int i = n; i < n + m; ++i) {
       vetor(i) = 0; 
    }
    return vetor;

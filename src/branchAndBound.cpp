@@ -3,16 +3,15 @@
 Node branchAndBound(Data& data, int branchingS){
 
   list<Node>::iterator it;
+  list<Node> tree;
   Node root;
   root.ub = *data.getVectorU();
   root.lb = *data.getVectorL();
-
-  list<Node> tree;
   tree.push_back(root);
   
   Node best; //armazenará a melhor solução viável
   best.relaxation.z = numeric_limits<double>::infinity();
-
+  
   int iterations = 0;
 
   while(!tree.empty()){
@@ -22,7 +21,7 @@ Node branchAndBound(Data& data, int branchingS){
     node.setSolution(solve(modified_data)); // resolve
     feasibility(node); // verifica se solução é viável (inteira)
    
-    if(node.feasible && node.relaxation.feasible){
+    if(node.relaxation.feasible && node.feasible){
       // corte pelo critério da integralidade
       if(node.relaxation.z + EPSILON < best.relaxation.z)
         best = node;
@@ -37,8 +36,8 @@ Node branchAndBound(Data& data, int branchingS){
       double diff = numeric_limits<double>::infinity();
 
       // encontra a variável mais próxima de 0.5
-      for(int i = 0; i < node.relaxation.variaveis.rows(); i++){
-        double val = node.relaxation.variaveis(i);
+      for(int i = 0; i < node.relaxation.variables.rows(); i++){
+        double val = node.relaxation.variables(i);
         if(abs(val - 0.5) + EPSILON < diff){
           index = i;
           diff = abs(val - 0.5);
@@ -63,7 +62,8 @@ Node branchAndBound(Data& data, int branchingS){
     }
     tree.erase(it);
     iterations++;
-    if(iterations % 100 == 0){
+
+    if(iterations % 10 == 0){
       cout << "iteração = " << iterations << " obj = " << setprecision(5) << best.relaxation.z << endl;
     }
   }
@@ -84,12 +84,11 @@ int branching_strategy(char s[]){
 	return branchingS;
 }
 
-
 void feasibility(Node& node){
-
+  //função que verifica se solução é viável
   node.feasible = true;
-  for(int i = 0; i < node.relaxation.variaveis.size(); i++){
-    double x = node.relaxation.variaveis(i);
+  for(int i = 0; i < node.relaxation.variables.size(); i++){
+    double x = node.relaxation.variables(i);
     int x_inteiro = round(x);
     if(abs(x - x_inteiro) > EPSILON)
       //verifica se a diferença é significativa
